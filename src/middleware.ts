@@ -11,7 +11,6 @@ const redis = new Redis({
 // Create a new ratelimiter using the Fixed Window algorithm
 const ratelimit = new Ratelimit({
   redis: redis,
-  // This is the line to change
   limiter: Ratelimit.fixedWindow(5, '10 s'),
   analytics: true,
   prefix: '@upstash/ratelimit',
@@ -20,8 +19,12 @@ const ratelimit = new Ratelimit({
 export async function middleware(request: NextRequest) {
   // Only apply rate limiting to API routes
   if (request.nextUrl.pathname.startsWith('/api')) {
-    const ip = request.ip ?? '127.0.0.1';
-    const { success, pending, limit, reset, remaining } = await ratelimit.limit(ip);
+    // Get IP address from headers (newer Next.js approach)
+    const ip = request.headers.get('x-forwarded-for') || 
+               request.headers.get('x-real-ip') || 
+               '127.0.0.1';
+    
+    const { success, limit, reset, remaining } = await ratelimit.limit(ip);
 
     if (!success) {
       return new NextResponse('Too many requests.', {
