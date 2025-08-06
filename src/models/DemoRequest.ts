@@ -1,6 +1,12 @@
+// src/models/DemoRequest.ts
 import mongoose, { Schema, model, models } from 'mongoose';
 
-const WaitlistSchema = new Schema({
+const DemoRequestSchema = new Schema({
+  name: {
+    type: String,
+    required: [true, 'Name is required.'],
+    trim: true,
+  },
   email: {
     type: String,
     required: [true, 'Email is required.'],
@@ -9,11 +15,15 @@ const WaitlistSchema = new Schema({
     lowercase: true,
     match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
   },
+  phone: {
+    type: String,
+    required: [true, 'Phone is required.'],
+    trim: true,
+  },
 }, {
-  timestamps: true, // Adds createdAt and updatedAt timestamps
+  timestamps: true,
 });
 
-// Check if the model already exists before defining it
-const Waitlist = models.Waitlist || model('Waitlist', WaitlistSchema);
+const DemoRequest = models.DemoRequest || model('DemoRequest', DemoRequestSchema);
 
-export default Waitlist;
+export default DemoRequest;
