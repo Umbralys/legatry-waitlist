@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -45,6 +45,92 @@ export default function Home() {
     }
   };
 
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [demoForm, setDemoForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    urgency: '',
+    honeypot: '' // Bot protection
+  });
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoMessage, setDemoMessage] = useState('');
+  const [demoError, setDemoError] = useState('');
+
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
+
+  useEffect(() => {
+    const launchDate = new Date('2025-09-27T00:00:00').getTime();
+
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const difference = launchDate - now;
+
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000)
+        });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        clearInterval(timer);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleDemoSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setDemoLoading(true);
+    setDemoMessage('');
+    setDemoError('');
+
+    // Basic validation
+    if (!demoForm.name || !demoForm.email || !demoForm.phone || !demoForm.urgency) {
+      setDemoError('Please fill in all fields.');
+      setDemoLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/demo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(demoForm),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'An error occurred. Please try again.');
+      }
+
+      setDemoMessage(data.message);
+      setDemoForm({ name: '', email: '', phone: '', urgency: '', honeypot: '' });
+
+      // Close modal after 2 seconds
+      setTimeout(() => {
+        setShowDemoModal(false);
+        setDemoMessage('');
+      }, 2000);
+
+    } catch (error: any) {
+      setDemoError(error.message || 'An error occurred. Please try again.');
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -69,9 +155,15 @@ export default function Home() {
                 Security
               </Link>
               {/* Updated Link */}
-              <a href="#demo" className="text-sm font-light text-gray-900 hover:text-gray-600 transition-colors">
+              <button
+                onClick={() => setShowDemoModal(true)}
+                className="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+              >
                 Request Demo
-              </a>
+                <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
               {/* Updated Link */}
               <a href="#join-waitlist" className="text-sm font-light bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
                 Join Waitlist
@@ -81,7 +173,7 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section - Your Original + Countdown Integration */}
       <section id="join-waitlist" className="pt-32 pb-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -93,59 +185,108 @@ export default function Home() {
                 </span>
               </h1>
               <p className="text-lg font-light text-gray-600 mb-8 leading-relaxed">
-              Legatry is a Legacy Management Platform that's transforming how Black families preserve, organize, and transfer their complete legacy. Join the waitlist to be the first to know when we launch.
+                Legatry is a Legacy Management Platform that's transforming how Black families preserve, organize, and transfer their complete legacy.
+                Join the waitlist to be the first to know when we launch.
               </p>
-              {/* Waitlist Form */}
+
+              {/* NEW: Launch Countdown Timer */}
+              <div className="mb-8 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl border border-gray-200">
+                <div className="text-center mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">Launching</h3>
+                  <p className="text-sm text-gray-600">September 27, 2025</p>
+                </div>
+
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="text-center p-3 bg-white rounded-lg shadow-sm">
+                    <div className="text-2xl font-light text-gray-900 mb-1">
+                      {timeLeft.days.toString().padStart(2, '0')}
+                    </div>
+                    <div className="text-xs text-gray-500 uppercase tracking-wide">
+                      Days
+                    </div>
+                  </div>
+
+                  <div className="text-center p-3 bg-white rounded-lg shadow-sm">
+                    <div className="text-2xl font-light text-gray-900 mb-1">
+                      {timeLeft.hours.toString().padStart(2, '0')}
+                    </div>
+                    <div className="text-xs text-gray-500 uppercase tracking-wide">
+                      Hours
+                    </div>
+                  </div>
+
+                  <div className="text-center p-3 bg-white rounded-lg shadow-sm">
+                    <div className="text-2xl font-light text-gray-900 mb-1">
+                      {timeLeft.minutes.toString().padStart(2, '0')}
+                    </div>
+                    <div className="text-xs text-gray-500 uppercase tracking-wide">
+                      Minutes
+                    </div>
+                  </div>
+
+                  <div className="text-center p-3 bg-white rounded-lg shadow-sm">
+                    <div className="text-2xl font-light text-gray-900 mb-1">
+                      {timeLeft.seconds.toString().padStart(2, '0')}
+                    </div>
+                    <div className="text-xs text-gray-500 uppercase tracking-wide">
+                      Seconds
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Your Original Waitlist Form */}
               <form onSubmit={handleJoinWaitlist} className="w-full">
                 <div className="flex flex-col sm:flex-row gap-4">
-                    <input
-                      type="email"
-                      name="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email address"
-                      className="input-premium flex-grow"
-                      disabled={loading}
-                      required
-                    />
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-light rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loading ? 'Joining...' : 'Join Waitlist'}
-                      {!loading && (
-                        <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                      )}
-                    </button>
+                  <input
+                    type="email"
+                    name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email address"
+                    className="input-premium flex-grow"
+                    disabled={loading}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-light rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Joining...' : 'Join Waitlist'}
+                    {!loading && (
+                      <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    )}
+                  </button>
                 </div>
                 {message && <p className="mt-4 text-sm text-green-600">{message}</p>}
                 {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
               </form>
             </div>
 
+            {/* Your Original Right Side Content */}
             <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-100 to-blue-100 rounded-3xl transform rotate-3"></div>
-            <div className="relative bg-white rounded-3xl shadow-2xl p-8">
-              <h3 className="text-lg font-light text-gray-900 mb-6 text-center">The Value of Preparedness</h3>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="text-center">
-                  <div className="text-3xl font-light text-gray-900">70%</div>
-                  <div className="text-sm font-light text-gray-500 mt-1">Black Families Without Wills</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-light text-gray-900">18</div>
-                  <div className="text-sm font-light text-gray-500 mt-1">Minutes Per Document Search</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-light text-gray-900">60%</div>
-                  <div className="text-sm font-light text-gray-500 mt-1">Household's Don't Have an Emergency Plan</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-light text-gray-900">$68T</div>
-                  <div className="text-sm font-light text-gray-500 mt-1">Black Wealth Transfer at Risk</div>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-100 to-blue-100 rounded-3xl transform rotate-3"></div>
+              <div className="relative bg-white rounded-3xl shadow-2xl p-8">
+                <h3 className="text-lg font-light text-gray-900 mb-6 text-center">The Value of Preparedness</h3>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-light text-gray-900">70%</div>
+                    <div className="text-sm font-light text-gray-500 mt-1">Black Families Without Wills</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-light text-gray-900">18</div>
+                    <div className="text-sm font-light text-gray-500 mt-1">Minutes Per Document Search</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-light text-gray-900">60%</div>
+                    <div className="text-sm font-light text-gray-500 mt-1">Household's Don't Have an Emergency Plan</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-light text-gray-900">$68T</div>
+                    <div className="text-sm font-light text-gray-500 mt-1">Black Wealth Transfer at Risk</div>
                   </div>
                 </div>
               </div>
@@ -165,8 +306,8 @@ export default function Home() {
               </span>
             </h2>
             <p className="text-lg font-light text-gray-600 max-w-3xl mx-auto">
-              Stop hunting through filing cabinets, email attachments, and different websites. 
-              Bring all your important documents from every source into one secure place where 
+              Stop hunting through filing cabinets, email attachments, and different websites.
+              Bring all your important documents from every source into one secure place where
               your family can collaborate and build a lasting legacy together.
             </p>
           </div>
@@ -175,8 +316,8 @@ export default function Home() {
             <div>
               <h3 className="text-2xl font-light text-gray-900 mb-6">From Scattered to Streamlined</h3>
               <p className="text-md font-light text-gray-600 mb-8 leading-relaxed">
-                Whether it's your car insurance policy from State Farm, tax documents from H&R Block, 
-                your will from the family attorney, property deeds from the courthouse, or business 
+                Whether it's your car insurance policy from State Farm, tax documents from H&R Block,
+                your will from the family attorney, property deeds from the courthouse, or business
                 records from your CPA—everything lives safely in one place.
               </p>
 
@@ -227,7 +368,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-100 to-blue-100 rounded-3xl transform rotate-2"></div>
               <div className="relative bg-white rounded-3xl shadow-2xl p-8">
                 <h4 className="text-lg font-light text-gray-900 mb-6 text-center">Before vs. Legatry</h4>
-                
+
                 <div className="space-y-6">
                   <div className="border-l-4 border-red-200 pl-4">
                     <h5 className="text-sm font-medium text-gray-800 mb-2">Before: Chaos & Lost Opportunities</h5>
@@ -256,68 +397,68 @@ export default function Home() {
           </div>
 
           {/* Value Proposition Grid */}
-            <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-8 md:p-12">
-              <h3 className="text-2xl font-light text-white mb-8 text-center">
-                How Organization Builds Generational Wealth
-              </h3>
-              
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-white/10 backdrop-blur rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                  </div>
-                  <h4 className="text-lg font-medium text-white mb-3">Maximize Every Dollar</h4>
-                  <p className="text-sm font-light text-gray-300">
-                    Complete financial visibility helps you claim every tax deduction, avoid duplicate 
-                    coverage, and identify investment opportunities others miss.
-                  </p>
-                </div>
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-8 md:p-12">
+            <h3 className="text-2xl font-light text-white mb-8 text-center">
+              How Organization Builds Generational Wealth
+            </h3>
 
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-white/10 backdrop-blur rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                  <h4 className="text-lg font-medium text-white mb-3">Accelerate Decisions</h4>
-                  <p className="text-sm font-light text-gray-300">
-                    When opportunities arise—buying property, starting a business, refinancing—having 
-                    organized documents means you can move fast while others are still searching.
-                  </p>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/10 backdrop-blur rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
                 </div>
-
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-white/10 backdrop-blur rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <h4 className="text-lg font-medium text-white mb-3">Protect the Legacy</h4>
-                  <p className="text-sm font-light text-gray-300">
-                    Organized estates transfer faster and preserve more wealth. Your heirs won't lose 
-                    assets to bureaucracy or pay penalties for missing deadlines.
-                  </p>
-                </div>
+                <h4 className="text-lg font-medium text-white mb-3">Maximize Every Dollar</h4>
+                <p className="text-sm font-light text-gray-300">
+                  Complete financial visibility helps you claim every tax deduction, avoid duplicate
+                  coverage, and identify investment opportunities others miss.
+                </p>
               </div>
 
-              <div className="mt-12 text-center">
-                <div className="inline-flex items-center space-x-8 text-white">
-                  <div className="text-center">
-                    <div className="text-3xl font-light">18 min</div>
-                    <div className="text-sm font-light text-gray-300">Average time to find documents before</div>
-                  </div>
-                  <div className="text-4xl font-extralight text-gray-400">→</div>
-                  <div className="text-center">
-                    <div className="text-3xl font-light text-green-400">30 sec</div>
-                    <div className="text-sm font-light text-gray-300">Average time to find documents after</div>
-                  </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/10 backdrop-blur rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-medium text-white mb-3">Accelerate Decisions</h4>
+                <p className="text-sm font-light text-gray-300">
+                  When opportunities arise—buying property, starting a business, refinancing—having
+                  organized documents means you can move fast while others are still searching.
+                </p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/10 backdrop-blur rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-medium text-white mb-3">Protect the Legacy</h4>
+                <p className="text-sm font-light text-gray-300">
+                  Organized estates transfer faster and preserve more wealth. Your heirs won't lose
+                  assets to bureaucracy or pay penalties for missing deadlines.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-12 text-center">
+              <div className="inline-flex items-center space-x-8 text-white">
+                <div className="text-center">
+                  <div className="text-3xl font-light">18 min</div>
+                  <div className="text-sm font-light text-gray-300">Average time to find documents before</div>
+                </div>
+                <div className="text-4xl font-extralight text-gray-400">→</div>
+                <div className="text-center">
+                  <div className="text-3xl font-light text-green-400">30 sec</div>
+                  <div className="text-sm font-light text-gray-300">Average time to find documents after</div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
       {/* Empowering Your Family's Future: Knowledge and Security */}
       <section id="demo" className="py-20 px-6 bg-white">
@@ -326,7 +467,7 @@ export default function Home() {
             Request a Demo
           </h2>
           <p className="text-lg font-light text-gray-700 max-w-3xl mx-auto mb-12">
-          Want to see Legatry in action? Request a personalized demo to see how our platform can help you protect your family’s assets and build a lasting legacy.
+            Want to see Legatry in action? Request a personalized demo to see how our platform can help you protect your family’s assets and build a lasting legacy.
           </p>
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="relative order-md-2">
@@ -441,107 +582,107 @@ export default function Home() {
       </section>
 
       <section id="family-circle" className="py-20 px-6 bg-white">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-        <h2 className="text-4xl font-light text-gray-900 mb-4">
-          The Family Circle
-          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
-            Access Control That Understands Our Families
-          </span>
-        </h2>
-        <p className="text-lg font-light text-gray-600 mb-8 leading-relaxed">
-          Black families often have complex family structures with play cousins, church family, 
-          and extended networks that need different levels of access. We built The Family Circle 
-          to honor these relationships while keeping your documents secure.
-        </p>
-        
-        <div className="space-y-6">
-          <div className="flex items-start">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-              <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Extended Family Structures</h3>
-              <p className="text-sm font-light text-gray-600">
-                Recognizes godparents and chosen family—because family isn't just about blood.
+              <h2 className="text-4xl font-light text-gray-900 mb-4">
+                The Family Circle
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
+                  Access Control That Understands Our Families
+                </span>
+              </h2>
+              <p className="text-lg font-light text-gray-600 mb-8 leading-relaxed">
+                Black families often have complex family structures with play cousins, church family,
+                and extended networks that need different levels of access. We built The Family Circle
+                to honor these relationships while keeping your documents secure.
               </p>
-            </div>
-          </div>
 
-          <div className="flex items-start">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-              <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Church Family Access</h3>
-              <p className="text-sm font-light text-gray-600">
-                Special permissions for church members or pastors who've been part of your journey.
-              </p>
-            </div>
-          </div>
+              <div className="space-y-6">
+                <div className="flex items-start">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Extended Family Structures</h3>
+                    <p className="text-sm font-light text-gray-600">
+                      Recognizes godparents and chosen family—because family isn't just about blood.
+                    </p>
+                  </div>
+                </div>
 
-          <div className="flex items-start">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-              <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Matriarch/Patriarch Controls</h3>
-              <p className="text-sm font-light text-gray-600">
-                Respects family hierarchies with family admins having the final say on who sees what.
-              </p>
-            </div>
-          </div>
+                <div className="flex items-start">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Church Family Access</h3>
+                    <p className="text-sm font-light text-gray-600">
+                      Special permissions for church members or pastors who've been part of your journey.
+                    </p>
+                  </div>
+                </div>
 
-          <div className="flex items-start">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-              <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+                <div className="flex items-start">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Matriarch/Patriarch Controls</h3>
+                    <p className="text-sm font-light text-gray-600">
+                      Respects family hierarchies with family admins having the final say on who sees what.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Community Helper Roles</h3>
+                    <p className="text-sm font-light text-gray-600">
+                      Grant temporary access to trusted helpers during tax season or estate planning.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Community Helper Roles</h3>
-              <p className="text-sm font-light text-gray-600">
-                Grant temporary access to trusted helpers during tax season or estate planning.
-              </p>
+
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-100 to-blue-100 rounded-3xl transform -rotate-3"></div>
+              <div className="relative bg-white rounded-3xl shadow-2xl p-8">
+                <h3 className="text-xl font-light text-gray-900 mb-6 text-center">Your Family Structure</h3>
+
+                <div className="space-y-4">
+                  <div className="text-center p-4 bg-gray-50 rounded-xl">
+                    <div className="text-sm font-medium text-gray-700 mb-1">Matriarch/Patriarch</div>
+                    <div className="text-xs text-gray-500">Full control & oversight</div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 bg-purple-50 rounded-xl">
+                      <div className="text-sm font-medium text-gray-700 mb-1">Kids/Grand-kids</div>
+                      <div className="text-xs text-gray-500">Special access</div>
+                    </div>
+                    <div className="text-center p-4 bg-blue-50 rounded-xl">
+                      <div className="text-sm font-medium text-gray-700 mb-1">Community Helpers</div>
+                      <div className="text-xs text-gray-500">Time-limited access</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-100 to-blue-100 rounded-3xl transform -rotate-3"></div>
-        <div className="relative bg-white rounded-3xl shadow-2xl p-8">
-          <h3 className="text-xl font-light text-gray-900 mb-6 text-center">Your Family Structure</h3>
-          
-          <div className="space-y-4">
-            <div className="text-center p-4 bg-gray-50 rounded-xl">
-              <div className="text-sm font-medium text-gray-700 mb-1">Matriarch/Patriarch</div>
-              <div className="text-xs text-gray-500">Full control & oversight</div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-purple-50 rounded-xl">
-                <div className="text-sm font-medium text-gray-700 mb-1">Kids/Grand-kids</div>
-                <div className="text-xs text-gray-500">Special access</div>
-              </div>
-              <div className="text-center p-4 bg-blue-50 rounded-xl">
-                <div className="text-sm font-medium text-gray-700 mb-1">Community Helpers</div>
-                <div className="text-xs text-gray-500">Time-limited access</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
 
       <section id="village-vault" className="py-20 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
@@ -553,7 +694,7 @@ export default function Home() {
               </span>
             </h2>
             <p className="text-lg font-light text-gray-600 max-w-3xl mx-auto">
-              Black communities have always shared knowledge for survival. Village Vault digitizes that tradition, 
+              Black communities have always shared knowledge for survival. Village Vault digitizes that tradition,
               creating a trusted network where families share what worked, connect with mentors, and build together.
             </p>
           </div>
@@ -666,47 +807,48 @@ export default function Home() {
       {/* NEW: Living History Section */}
       <section id="living-history" className="py-20 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="relative w-full h-96 rounded-2xl overflow-hidden shadow-xl">
-                    <div className="absolute inset-0 bg-black">
-                        <img src="https://legatrytest.blob.core.windows.net/familylegacystorage/Screenshot 2025-08-06 at 11.11.10 PM.png" alt="An elder sharing a story with a younger family member" className="w-full h-full object-cover opacity-60"/>
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center p-8">
-                        <h3 className="text-white text-4xl font-light text-center leading-snug"> </h3>
-                    </div>
-                </div>
-                <div>
-                    <h2 className="text-4xl font-light text-gray-900 mb-4">
-                        Capture Your Living History 
-                    </h2>
-                    <p className="text-lg font-light text-gray-600 mb-6 leading-relaxed">
-                        Our histories are incredible stories of resilience and wisdom that are rarely documented.  We make it easy to record, preserve, and pass down the oral histories that define your family.
-                    </p>
-                    <ul className="space-y-4">
-                        <li className="flex items-start">
-                            <svg className="w-6 h-6 text-purple-600 mr-3 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-                            <div>
-                                <h4 className="font-medium text-gray-800">Oral History, Simplified</h4>
-                                <p className="text-sm font-light text-gray-600">Designed for our elders who prefer talking to typing, so no story is lost. </p>
-                            </div>
-                        </li>
-                        <li className="flex items-start">
-                             <svg className="w-6 h-6 text-purple-600 mr-3 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-                            <div>
-                                <h4 className="font-medium text-gray-800">Culturally-Specific Prompts</h4>
-                                <p className="text-sm font-light text-gray-600">Inspire deep conversations with questions tailored to the Black experience. </p>
-                            </div>
-                        </li>
-                        <li className="flex items-start">
-                             <svg className="w-6 h-6 text-purple-600 mr-3 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-                            <div>
-                                <h4 className="font-medium text-gray-800">Preserve Survival Wisdom</h4>
-                                <p className="text-sm font-light text-gray-600">Document the invaluable lessons of how your family survived and thrived despite barriers. </p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="relative">
+              <img
+                src="https://legatrytest.blob.core.windows.net/familylegacystorage/test.png"
+                alt="An elder sharing a story with a younger family member"
+                className="w-full h-auto rounded-3xl shadow-xl"
+              />
             </div>
+            <div>
+              <h2 className="text-4xl font-light text-gray-900 mb-4">
+                Capture Your Living History
+              </h2>
+              <p className="text-lg font-light text-gray-600 mb-6 leading-relaxed">
+                Our histories are incredible stories of resilience and wisdom that are rarely documented. We make it easy to record, preserve, and pass down the oral histories that define your family.
+              </p>
+              <ul className="space-y-4">
+                <li className="flex items-start">
+                  <svg className="w-6 h-6 text-purple-600 mr-3 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                  <div>
+                    <h4 className="font-medium text-gray-800">Oral History, Simplified</h4>
+                    <p className="text-sm font-light text-gray-600">Designed for our elders who prefer talking to typing, so no story is lost.</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-6 h-6 text-purple-600 mr-3 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                  <div>
+                    <h4 className="font-medium text-gray-800">Culturally-Specific Prompts</h4>
+                    <p className="text-sm font-light text-gray-600">Inspire deep conversations with questions tailored to the Black experience. </p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-6 h-6 text-purple-600 mr-3 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                  <div>
+                    <h4 className="font-medium text-gray-800">Preserve Survival Wisdom</h4>
+                    <p className="text-sm font-light text-gray-600">Document the invaluable lessons of how your family survived and thrived despite barriers. </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -722,8 +864,8 @@ export default function Home() {
                 </span>
               </h2>
               <p className="text-lg font-light text-gray-600 mb-8 leading-relaxed">
-                Important cultural events are opportunities for wealth building and knowledge transfer. 
-                Transform your celebrations into legacy-building moments that strengthen family bonds 
+                Important cultural events are opportunities for wealth building and knowledge transfer.
+                Transform your celebrations into legacy-building moments that strengthen family bonds
                 while securing your financial future.
               </p>
 
@@ -790,23 +932,23 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-r from-amber-100 to-orange-100 rounded-3xl transform -rotate-3"></div>
               <div className="relative bg-white rounded-3xl shadow-2xl p-8">
                 <h3 className="text-xl font-light text-gray-900 mb-6 text-center">Transform Celebrations Into Legacy</h3>
-                
+
                 <div className="space-y-4">
                   <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl">
                     <h4 className="font-medium text-gray-800 mb-2">Family Reunion Summit</h4>
                     <p className="text-sm font-light text-gray-600">Investment circles • Business networking • Youth financial literacy</p>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl">
                     <h4 className="font-medium text-gray-800 mb-2">Kwanzaa Wealth Week</h4>
                     <p className="text-sm font-light text-gray-600">Ujamaa marketplace • Kujichagulia planning • Imani trust funds</p>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-xl">
                     <h4 className="font-medium text-gray-800 mb-2">Juneteenth Freedom Fund</h4>
                     <p className="text-sm font-light text-gray-600">Liberation savings • Property acquisition • Business launches</p>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl">
                     <h4 className="font-medium text-gray-800 mb-2">Heritage Month Challenges</h4>
                     <p className="text-sm font-light text-gray-600">Daily wealth tips • Family competitions • Legacy milestones</p>
@@ -875,11 +1017,11 @@ export default function Home() {
                 Security You Can Trust
               </h2>
               <p className="text-lg font-light text-gray-600 mb-8 leading-relaxed">
-                We understand the importance of keeping your family's documents safe. 
-                That's why we've implemented enterprise-grade security measures to protect 
+                We understand the importance of keeping your family's documents safe.
+                That's why we've implemented enterprise-grade security measures to protect
                 your digital legacy.
               </p>
-              
+
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -956,14 +1098,14 @@ export default function Home() {
       <section className="py-20 px-6 bg-gradient-to-br from-gray-900 to-black">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-light text-white mb-6">
-          Amplify the Brilliance and Resilience in Your Family
+            Amplify the Brilliance and Resilience in Your Family
           </h2>
           <p className="text-lg font-light text-gray-300 mb-8 max-w-2xl mx-auto">
-          Join the community of families taking control of their narrative, securing their assets, and building a legacy that will last for generations.
+            Join the community of families taking control of their narrative, securing their assets, and building a legacy that will last for generations.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="#join-waitlist" className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 font-light rounded-lg hover:bg-gray-100 transition-colors shadow-xl">
-            Join The Waitlist
+              Join The Waitlist
               <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
@@ -1002,7 +1144,7 @@ export default function Home() {
                 <li><Link href="/faq" className="text-sm font-light text-gray-600 hover:text-gray-900">FAQ</Link></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="text-sm font-medium text-gray-900 mb-4">Company</h4>
               <ul className="space-y-2">
@@ -1028,6 +1170,136 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {showDemoModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto">
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-light text-gray-900">Request Demo</h3>
+                <button
+                  onClick={() => setShowDemoModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleDemoSubmit} className="space-y-4">
+                {/* Honeypot field - hidden from users */}
+                <input
+                  type="text"
+                  name="honeypot"
+                  value={demoForm.honeypot}
+                  onChange={(e) => setDemoForm(prev => ({ ...prev, honeypot: e.target.value }))}
+                  style={{ display: 'none' }}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={demoForm.name}
+                    onChange={(e) => setDemoForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter your full name"
+                    disabled={demoLoading}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={demoForm.email}
+                    onChange={(e) => setDemoForm(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter your email"
+                    disabled={demoLoading}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={demoForm.phone}
+                    onChange={(e) => setDemoForm(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="(555) 123-4567"
+                    disabled={demoLoading}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    What's driving your interest in Legatry?
+                  </label>
+                  <select
+                    value={demoForm.urgency}
+                    onChange={(e) => setDemoForm(prev => ({ ...prev, urgency: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    disabled={demoLoading}
+                    required
+                  >
+                    <option value="">Select your situation</option>
+                    <option value="planning-ahead">Planning ahead for my family</option>
+                    <option value="recent-loss">Recent loss in the family</option>
+                    <option value="organizing-documents">Need to organize family documents</option>
+                    <option value="estate-planning">Working on estate planning</option>
+                    <option value="family-history">Want to preserve family history</option>
+                    <option value="financial-planning">Family financial planning</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                {/* Messages */}
+                {demoMessage && (
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-600">{demoMessage}</p>
+                  </div>
+                )}
+
+                {demoError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-600">{demoError}</p>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={demoLoading}
+                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {demoLoading ? 'Submitting...' : 'Request Demo'}
+                  {!demoLoading && (
+                    <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

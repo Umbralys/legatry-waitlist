@@ -1,4 +1,4 @@
-// src/models/DemoRequest.ts
+// src/models/DemoRequest.ts - ENSURE THIS IS EXACTLY YOUR MODEL
 import mongoose, { Schema, model, models } from 'mongoose';
 
 const DemoRequestSchema = new Schema({
@@ -18,6 +18,20 @@ const DemoRequestSchema = new Schema({
   phone: {
     type: String,
     required: [true, 'Phone is required.'],
+    trim: true,
+  },
+  urgency: {
+    type: String,
+    required: [true, 'Urgency/situation is required.'],
+    enum: [
+      'planning-ahead',
+      'recent-loss', 
+      'organizing-documents',
+      'estate-planning',
+      'family-history',
+      'financial-planning',
+      'other'
+    ],
     trim: true,
   },
 }, {
