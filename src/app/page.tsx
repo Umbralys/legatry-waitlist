@@ -9,6 +9,10 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [bottomEmail, setBottomEmail] = useState('');
+  const [bottomLoading, setBottomLoading] = useState(false);
+  const [bottomMessage, setBottomMessage] = useState('');
+  const [bottomError, setBottomError] = useState('');
 
   const handleJoinWaitlist = async (e: FormEvent) => {
     e.preventDefault();
@@ -43,6 +47,42 @@ export default function Home() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBottomWaitlist = async (e: FormEvent) => {
+    e.preventDefault();
+    setBottomLoading(true);
+    setBottomMessage('');
+    setBottomError('');
+  
+    if (!bottomEmail) {
+      setBottomError('Please enter a valid email address.');
+      setBottomLoading(false);
+      return;
+    }
+  
+    try {
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: bottomEmail }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.message || 'An error occurred. Please try again.');
+      }
+  
+      setBottomMessage(data.message);
+      setBottomEmail(''); // Clear input on success
+    } catch (err: any) {
+      setBottomError(err.message);
+    } finally {
+      setBottomLoading(false);
     }
   };
 
@@ -1114,20 +1154,53 @@ export default function Home() {
           <p className="text-lg font-light text-gray-300 mb-8 max-w-2xl mx-auto">
             Join the community of families taking control of their narrative, securing their assets, and building a legacy that will last for generations.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#join-waitlist" className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 font-light rounded-lg hover:bg-gray-100 transition-colors shadow-xl">
-              Join The Waitlist
-              <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </a>
-            <a href="#demo" className="inline-flex items-center justify-center px-8 py-4 border border-gray-600 text-white font-light rounded-lg hover:bg-gray-800 transition-colors">
+          <div className="space-y-6">
+          {/* Join Waitlist Form */}
+          <form onSubmit={handleBottomWaitlist} className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+            <input
+              type="email"
+              value={bottomEmail}
+              onChange={(e) => setBottomEmail(e.target.value)}
+              placeholder="Enter your email address"
+              className="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+              disabled={bottomLoading}
+              required
+            />
+            <button
+              type="submit"
+              disabled={bottomLoading}
+              className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 font-light rounded-lg hover:bg-gray-100 transition-colors shadow-xl disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              {bottomLoading ? 'Joining...' : 'Join The Waitlist'}
+              {!bottomLoading && (
+                <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              )}
+            </button>
+          </form>
+
+          {/* Messages for Waitlist Form */}
+          {bottomMessage && (
+            <p className="text-sm text-green-600 text-center max-w-md mx-auto">{bottomMessage}</p>
+          )}
+          {bottomError && (
+            <p className="text-sm text-red-600 text-center max-w-md mx-auto">{bottomError}</p>
+          )}
+
+          {/* Request Demo Button */}
+          <div className="text-center">
+            <button
+              onClick={() => setShowDemoModal(true)}
+              className="inline-flex items-center justify-center px-8 py-4 border border-gray-600 text-white font-light rounded-lg hover:bg-gray-800 transition-colors"
+            >
               Request a Demo
               <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L14.25 12L9.75 7" />
               </svg>
-            </a>
+            </button>
           </div>
+        </div>
         </div>
       </section>
 
