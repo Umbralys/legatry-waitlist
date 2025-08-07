@@ -20,23 +20,39 @@ export const metadata: Metadata = {
   creator: "Legatry",
   publisher: "Legatry",
   openGraph: {
-    title: "Legatry - Your Family's Legacy Protected Forever",
+    title: "Legatry - Legacy Management Platform",
     description: "Join the waitlist for the platform transforming how Black families preserve and transfer their complete legacy.",
     type: "website",
     locale: "en_US",
     siteName: "Legatry",
+    url: "https://legatry.com",
+    images: [
+      {
+        url: "/og-image.png", // 1200x630 pixels recommended
+        width: 1200,
+        height: 630,
+        alt: "Legatry - Your Family's Legacy Protected Forever",
+      },
+      {
+        url: "/og-image-square.png", // 1200x1200 pixels for square format
+        width: 1200,
+        height: 1200,
+        alt: "Legatry Legacy Management Platform",
+      }
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Legatry - Legacy Management Platform",
     description: "Join our waitlist to be the first to experience the future of family legacy management.",
     creator: "@legatry", // Update with your actual Twitter handle
+    images: ["/twitter-image.png"], // 1200x630 pixels recommended
   },
   robots: {
     index: true,
     follow: true,
   },
-  metadataBase: new URL('https://legatry.com'), 
+  metadataBase: new URL('https://legatry.com'),
 };
 
 export default function RootLayout({
