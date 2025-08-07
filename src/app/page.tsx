@@ -331,7 +331,7 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="relative order-md-2">
               <img
-                src="https://familylegacystorage.blob.core.windows.net/site-images/Gemini_Generated_Image_p50ylip50ylip50y.png"
+                src="https://legatrytest.blob.core.windows.net/familylegacystorage/waitlist-pic.png"
                 alt="Secure digital documents and family financial protection"
                 className="w-full h-auto rounded-3xl shadow-xl"
               />
@@ -669,7 +669,7 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div className="relative w-full h-96 rounded-2xl overflow-hidden shadow-xl">
                     <div className="absolute inset-0 bg-black">
-                        <img src="https://familylegacystorage.blob.core.windows.net/site-images/land-page-image.png" alt="An elder sharing a story with a younger family member" className="w-full h-full object-cover opacity-60"/>
+                        <img src="https://legatrytest.blob.core.windows.net/familylegacystorage/waitlist-pic1.png" alt="An elder sharing a story with a younger family member" className="w-full h-full object-cover opacity-60"/>
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center p-8">
                         <h3 className="text-white text-4xl font-light text-center leading-snug">"When white banks wouldn't give us loans, here's how our community created lending circles..." </h3>
