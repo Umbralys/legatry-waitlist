@@ -176,53 +176,47 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="fixed w-full bg-white/95 backdrop-blur-sm border-b border-gray-100 z-50">
-  <div className="max-w-7xl mx-auto px-6">
-    <div className="flex justify-between items-center h-16">
-      <div className="flex items-center space-x-3">
-        <Image
-          src="/header-logo.png"
-          alt="Legatry Logo"
-          width={32}
-          height={32}
-          priority
-          quality={100}
-          style={{ backgroundColor: 'transparent' }}
-        />
-        <span className="text-lg font-light tracking-wide text-gray-900">Legatry</span>
-      </div>
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center space-x-3">
+            <Image
+              src="/header-logo.png"
+              alt="Legatry Logo"
+              width={32}
+              height={32}
+              priority
+              quality={100}
+              style={{ backgroundColor: 'transparent' }}
+            />
+            <span className="text-lg font-light tracking-wide text-gray-900">Legatry</span>
+          </div>
 
-      <div className="flex items-center space-x-6">
-        <Link href="#features" className="text-sm font-light text-gray-600 hover:text-gray-900 transition-colors hidden md:block">
-          Features
-        </Link>
-        <Link href="#how-it-works" className="text-sm font-light text-gray-600 hover:text-gray-900 transition-colors hidden md:block">
-          How It Works
-        </Link>
-        <Link href="#security" className="text-sm font-light text-gray-600 hover:text-gray-900 transition-colors hidden md:block">
-          Security
-        </Link>
+          <div className="flex items-center space-x-6">
+            <Link href="#features" className="text-sm font-light text-gray-600 hover:text-gray-900 transition-colors hidden md:block">
+              Features
+            </Link>
+            <Link href="#how-it-works" className="text-sm font-light text-gray-600 hover:text-gray-900 transition-colors hidden md:block">
+              How It Works
+            </Link>
+            <Link href="#security" className="text-sm font-light text-gray-600 hover:text-gray-900 transition-colors hidden md:block">
+              Security
+            </Link>
 
-        {/* Updated Request Demo Button - Much smaller on mobile */}
-        <button
-          onClick={() => setShowDemoModal(true)}
-          className="inline-flex items-center justify-center px-2 py-1 md:px-8 md:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium text-xs md:text-base rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
-        >
-          <span className="hidden sm:inline">Request Demo</span>
-          <span className="sm:hidden">Demo</span>
-          <svg className="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </button>
-        {/* Updated Join Waitlist Button - Much smaller on mobile */}
-        <a href="#join-waitlist"
-           className="text-xs md:text-sm font-light bg-gray-900 text-white px-2 py-1 md:px-4 md:py-2 rounded-lg hover:bg-gray-800 transition-colors">
-          <span className="hidden sm:inline">Join Waitlist</span>
-          <span className="sm:hidden">Waitlist</span>
-        </a>
+            {/* Updated Request Demo Button - Much smaller on mobile */}
+            <button
+              onClick={() => setShowDemoModal(true)}
+              className="inline-flex items-center justify-center px-2 py-1 md:px-8 md:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium text-xs md:text-base rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+            >
+              <span className="hidden sm:inline">Request Demo</span>
+              <span className="sm:hidden">Demo</span>
+              <svg className="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</nav>
+    </nav>
 
       {/* Hero Section - Your Original + Countdown Integration */}
       <section id="join-waitlist" className="pt-32 pb-20 px-6">
@@ -1162,7 +1156,7 @@ export default function Home() {
               value={bottomEmail}
               onChange={(e) => setBottomEmail(e.target.value)}
               placeholder="Enter your email address"
-              className="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+              className="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
               disabled={bottomLoading}
               required
             />
