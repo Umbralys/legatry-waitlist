@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Legatry Team" }],
   creator: "Legatry",
   publisher: "Legatry",
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
   openGraph: {
     title: "Legatry - Legacy Management Platform",
     description: "Join the waitlist for the platform transforming how Black families preserve and transfer their complete legacy.",
