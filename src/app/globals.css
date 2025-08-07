@@ -476,3 +476,26 @@ aside.sidebar {
     font-size: 1.5rem;
   }
 }
+
+/* Hide fixed navigation for link preview bots and small viewports */
+@media screen and (max-width: 600px) and (max-height: 500px) {
+  nav.fixed {
+    display: none !important;
+  }
+  
+  /* Adjust first section padding when nav is hidden */
+  #join-waitlist {
+    padding-top: 2rem !important;
+  }
+}
+
+/* Specific fix for text message preview engines */
+@media screen and (max-width: 400px) and (max-height: 300px) {
+  nav {
+    display: none !important;
+  }
+  
+  .min-h-screen > section:first-child {
+    padding-top: 1rem !important;
+  }
+}
