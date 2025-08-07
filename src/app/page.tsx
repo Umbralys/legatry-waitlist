@@ -154,18 +154,19 @@ export default function Home() {
               <Link href="#security" className="text-sm font-light text-gray-600 hover:text-gray-900 transition-colors hidden md:block">
                 Security
               </Link>
-              {/* Updated Link */}
+              {/* Updated Request Demo Button - Smaller on mobile */}
               <button
                 onClick={() => setShowDemoModal(true)}
-                className="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+                className="inline-flex items-center justify-center px-4 py-2 md:px-8 md:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
               >
                 Request Demo
                 <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </button>
-              {/* Updated Link */}
-              <a href="#join-waitlist" className="text-sm font-light bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
+              {/* Updated Join Waitlist Button - Smaller on mobile */}
+              <a href="#join-waitlist"
+                className="text-sm font-light bg-gray-900 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg hover:bg-gray-800 transition-colors">
                 Join Waitlist
               </a>
             </div>
