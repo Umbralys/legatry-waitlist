@@ -1204,9 +1204,6 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-gray-800 to-black rounded-lg flex items-center justify-center">
-                  <span className="text-white font-light text-sm">FL</span>
-                </div>
                 <span className="text-lg font-light tracking-wide text-gray-900">Legatry</span>
               </div>
               <p className="text-sm font-light text-gray-600">
