@@ -1214,37 +1214,11 @@ export default function Home() {
               </p>
             </div>
 
-            <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-4">Product</h4>
-              <ul className="space-y-2">
-                <li><Link href="/contact" className="text-sm font-light text-gray-600 hover:text-gray-900">Contact</Link></li>
-                <li><Link href="/help" className="text-sm font-light text-gray-600 hover:text-gray-900">Help Center</Link></li>
-                <li><Link href="/faq" className="text-sm font-light text-gray-600 hover:text-gray-900">FAQ</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-4">Company</h4>
-              <ul className="space-y-2">
-                <li><Link href="/about" className="text-sm font-light text-gray-600 hover:text-gray-900">About Us</Link></li>
-                <li><Link href="/blog" className="text-sm font-light text-gray-600 hover:text-gray-900">Blog</Link></li>
-                <li><Link href="/careers" className="text-sm font-light text-gray-600 hover:text-gray-900">Careers</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-4">Legal</h4>
-              <ul className="space-y-2">
-                <li><Link href="/privacy" className="text-sm font-light text-gray-600 hover:text-gray-900">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="text-sm font-light text-gray-600 hover:text-gray-900">Terms of Service</Link></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="mt-8 pt-8 border-t border-gray-100">
+            <div className="mt-8 pt-8 border-t border-gray-100">
             <p className="text-center text-sm font-light text-gray-500">
               © {new Date().getFullYear()} Legatry. All rights reserved.
             </p>
+          </div>
           </div>
         </div>
       </footer>
@@ -1377,7 +1351,6 @@ export default function Home() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
