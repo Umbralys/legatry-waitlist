@@ -1211,11 +1211,12 @@ export default function Home() {
               </p>
             </div>
 
+            {/* copyright section */}
             <div className="mt-8 pt-8 border-t border-gray-100">
-            <p className="text-center text-sm font-light text-gray-500">
-              © {new Date().getFullYear()} Legatry. All rights reserved.
-            </p>
-          </div>
+              <p className="text-center text-sm font-light text-gray-500">
+                © {new Date().getFullYear()} Legatry. All rights reserved.
+              </p>
+            </div>
           </div>
         </div>
       </footer>
