@@ -230,7 +230,7 @@ export default function Home() {
                 </span>
               </h1>
               <p className="text-lg font-light text-gray-600 mb-8 leading-relaxed">
-                Legatry is a Legacy Management Platform that's transforming how Black families preserve, organize, and transfer their complete legacy.
+                Legatry is a Legacy Management Platform that's transforming how Black families preserve, organize, and transfer their complete legacy across generations.
                 Join the waitlist to be the first to know when we launch.
               </p>
 
@@ -351,7 +351,7 @@ export default function Home() {
               </span>
             </h2>
             <p className="text-lg font-light text-gray-600 max-w-3xl mx-auto">
-              Stop hunting through filing cabinets, email attachments, and different websites.
+              Stop searching through desktop folders, email attachments, and different websites.
               Bring all your important documents from every source into one secure place where
               your family can collaborate and build a lasting legacy together.
             </p>
